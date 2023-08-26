@@ -16,8 +16,7 @@ import matplotlib.pyplot as plt
 
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, metrics, svm
-from sklearn.model_selection import train_test_split
-
+from utils import preprocess_data, split_data, train_model, read_digits
 ###############################################################################
 # Digits dataset
 # --------------
@@ -32,13 +31,13 @@ from sklearn.model_selection import train_test_split
 # Note: if we were working from image files (e.g., 'png' files), we would load
 # them using :func:`matplotlib.pyplot.imread`.
 
-digits = datasets.load_digits()
 
-_, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-for ax, image, label in zip(axes, digits.images, digits.target):
-    ax.set_axis_off()
-    ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-    ax.set_title("Training: %i" % label)
+
+# _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
+# for ax, image, label in zip(axes, digits.images, digits.target):
+#     ax.set_axis_off()
+#     ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
+#     ax.set_title("Training: %i" % label)
 
 ###############################################################################
 # Classification
@@ -55,41 +54,43 @@ for ax, image, label in zip(axes, digits.images, digits.target):
 # subsequently be used to predict the value of the digit for the samples
 # in the test subset.
 
+
+
 # flatten the images
-n_samples = len(digits.images)
-data = digits.images.reshape((n_samples, -1))
+
 
 # Create a classifier: a support vector classifier
-clf = svm.SVC(gamma=0.001)
-
+x,y = read_digits();
 # Split data into 50% train and 50% test subsets
-X_train, X_test, y_train, y_test = train_test_split(
-    data, digits.target, test_size=0.5, shuffle=False
-)
+X_train, X_test, y_train, y_test =split_data(x,y, test_size=0.3)
+
+X_train = preprocess_data(X_train)
+X_test = preprocess_data(X_test)
+
+model = train_model(X_train, y_train,{'gamma':0.001},model_type="svm")
 
 # Learn the digits on the train subset
-clf.fit(X_train, y_train)
 
 # Predict the value of the digit on the test subset
-predicted = clf.predict(X_test)
+predicted = model.predict(X_test)
 
 ###############################################################################
 # Below we visualize the first 4 test samples and show their predicted
 # digit value in the title.
 
-_, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-for ax, image, prediction in zip(axes, X_test, predicted):
-    ax.set_axis_off()
-    image = image.reshape(8, 8)
-    ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-    ax.set_title(f"Prediction: {prediction}")
+# _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
+# for ax, image, prediction in zip(axes, X_test, predicted):
+#     ax.set_axis_off()
+#     image = image.reshape(8, 8)
+#     ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
+#     ax.set_title(f"Prediction: {prediction}")
 
 ###############################################################################
 # :func:`~sklearn.metrics.classification_report` builds a text report showing
 # the main classification metrics.
 
 print(
-    f"Classification report for classifier {clf}:\n"
+    f"Classification report for classifier {model}:\n"
     f"{metrics.classification_report(y_test, predicted)}\n"
 )
 
@@ -98,10 +99,10 @@ print(
 # true digit values and the predicted digit values.
 
 disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
-disp.figure_.suptitle("Confusion Matrix")
-print(f"Confusion matrix:\n{disp.confusion_matrix}")
+# disp.figure_.suptitle("Confusion Matrix")
+# print(f"Confusion matrix:\n{disp.confusion_matrix}")
 
-plt.show()
+# plt.show()
 
 ###############################################################################
 # If the results from evaluating a classifier are stored in the form of a
