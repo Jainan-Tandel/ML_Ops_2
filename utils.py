@@ -22,3 +22,12 @@ def train_model(x,y,model_params,model_type="svm"):
     model = clf(**model_params)
     model.fit(x,y)
     return model
+
+def train_test_dev_split():
+    # return X_train, X_test, X_dev, y_train, y_test, y_dev
+    return
+
+def predict_and_eval():
+    # prediction
+    # report matrices
+    return
