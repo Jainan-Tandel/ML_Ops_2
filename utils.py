@@ -1,5 +1,6 @@
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 def read_digits():
     digits = datasets.load_digits()
@@ -35,6 +36,8 @@ def predict_and_eval(model,X_test,y_test,c_report=True,c_matrix=True):
     f"Classification report for classifier {model}:\n"
     f"{metrics.classification_report(y_test, predicted)}\n"
     )
+        
+    accuracy = accuracy_score(y_test,predicted)
 
     if(c_matrix == True):
         disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
@@ -54,4 +57,4 @@ def predict_and_eval(model,X_test,y_test,c_report=True,c_matrix=True):
         #     f"{metrics.classification_report(y_true, y_pred)}\n"
         # )
 
-    return predicted
+    return predicted, accuracy
