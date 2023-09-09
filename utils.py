@@ -75,7 +75,6 @@ def tune_hparams(X_train, y_train, X_dev, y_dev, param_list_dict):
         cur_model = train_model(X_train, y_train, model_params=params, model_type='svm')
         _, cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev,c_report=False,c_matrix=False)
         if cur_accuracy > best_accuracy_so_far:
-            print("New best accuracy:",cur_accuracy)
             best_accuracy_so_far = cur_accuracy
             best_model = cur_model
 
