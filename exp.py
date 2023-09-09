@@ -15,6 +15,9 @@ hand-written digits, from 0-9.
 from sklearn import metrics
 from utils import preprocess_data, split_data, train_model, read_digits,predict_and_eval,train_test_dev_split
 
+gamma_ranges = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
+C_ranges = [0.1,1,2,5,10]
+
 # Read digits: Create a classifier: a support vector classifier
 x,y = read_digits();
 
@@ -26,12 +29,26 @@ X_train = preprocess_data(X_train)
 X_test = preprocess_data(X_test)
 X_dev = preprocess_data(X_dev)
 
-#Model training
-model = train_model(X_train, y_train,{'gamma':0.001},model_type="svm")
+#Find best model for given gamma and C range
+
+best_accuracy_so_far = -1
+best_model = None
+for cur_gamma in gamma_ranges:
+    for cur_c in C_ranges:
+        cur_model = train_model(X_train, y_train, {'gamma': cur_gamma,'C':cur_c}, model_type='svm')
+        cur_accuracy,predicted = predict_and_eval(cur_model, X_dev, y_dev)
+        if cur_accuracy > best_accuracy_so_far:
+            print(f"New best accuracy {cur_accuracy}")
+            best_accuracy_so_far = cur_accuracy
+            optimal_gamma = cur_gamma
+            optimal_C = cur_c
+            best_model = cur_model
+
+print(f"Optimal C is {optimal_C} , Optimal gamma is {optimal_gamma}")
+
 
 # Getting model predictions on test set
 # Predict the value of the digit on the test subset
 
-predicted = predict_and_eval(model,X_test,y_test)
-predicted_dev = predict_and_eval(model,X_dev,y_dev)
+predicted = predict_and_eval(best_model,X_test,y_test)
 
