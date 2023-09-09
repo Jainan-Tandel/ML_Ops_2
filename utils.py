@@ -1,5 +1,7 @@
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import itertools
 
 def read_digits():
     digits = datasets.load_digits()
@@ -35,6 +37,8 @@ def predict_and_eval(model,X_test,y_test,c_report=True,c_matrix=True):
     f"Classification report for classifier {model}:\n"
     f"{metrics.classification_report(y_test, predicted)}\n"
     )
+        
+    accuracy = accuracy_score(y_test,predicted)
 
     if(c_matrix == True):
         disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
@@ -54,4 +58,26 @@ def predict_and_eval(model,X_test,y_test,c_report=True,c_matrix=True):
         #     f"{metrics.classification_report(y_true, y_pred)}\n"
         # )
 
-    return predicted
+    return predicted, accuracy
+
+def make_param_combinations(param_list_dict):
+    hparams = param_list_dict.keys()
+    ranges = [param_list_dict[x] for x in hparams]
+    list_of_all_param_combination=[ dict(zip(hparams,x)) for x in list(itertools.product(*ranges))]
+    return list_of_all_param_combination    
+        
+
+def tune_hparams(X_train, y_train, X_dev, y_dev, param_list_dict):
+    list_of_all_param_combination = make_param_combinations(param_list_dict)
+    best_accuracy_so_far = -1
+    best_model = None
+    for params in list_of_all_param_combination:
+        cur_model = train_model(X_train, y_train, model_params=params, model_type='svm')
+        _, cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev,c_report=False,c_matrix=False)
+        if cur_accuracy > best_accuracy_so_far:
+            best_accuracy_so_far = cur_accuracy
+            best_model = cur_model
+
+    best_accuracy = best_accuracy_so_far
+    best_hparams = best_model.get_params()
+    return best_hparams, best_model, best_accuracy
