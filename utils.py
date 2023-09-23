@@ -39,7 +39,7 @@ def predict_and_eval(model,X_test,y_test,c_report=True,c_matrix=True):
     )
         
     accuracy = accuracy_score(y_test,predicted)
-
+    print(f"Accuracy Score: {accuracy}")
     if(c_matrix == True):
         disp = metrics.ConfusionMatrixDisplay.from_predictions(y_test, predicted)
 
