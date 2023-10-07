@@ -1,4 +1,4 @@
-from sklearn import datasets, metrics, svm
+from sklearn import datasets, metrics, svm, tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import itertools
@@ -18,9 +18,12 @@ def preprocess_data(data):
     data = data.reshape((n_samples, -1))
     return data
     
-def train_model(x,y,model_params,model_type="svm"):
+def train_model(x,y,model_params={},model_type="svm"):
     if model_type == "svm":
         clf = svm.SVC
+    if model_type == "tree":
+        clf = tree.DecisionTreeClassifier
+        
     model = clf(**model_params)
     model.fit(x,y)
     return model
@@ -67,13 +70,13 @@ def make_param_combinations(param_list_dict):
     return list_of_all_param_combination    
         
 
-def tune_hparams(X_train, y_train, X_dev, y_dev, param_list_dict):
+def tune_hparams(X_train, y_train, X_dev, y_dev, param_list_dict,model_type="svm",c_report=False):
     list_of_all_param_combination = make_param_combinations(param_list_dict)
     best_accuracy_so_far = -1
     best_model = None
     for params in list_of_all_param_combination:
-        cur_model = train_model(X_train, y_train, model_params=params, model_type='svm')
-        _, cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev,c_report=False,c_matrix=False)
+        cur_model = train_model(X_train, y_train, model_params=params, model_type=model_type)
+        _, cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev,c_report=c_report,c_matrix=False)
         if cur_accuracy > best_accuracy_so_far:
             best_accuracy_so_far = cur_accuracy
             best_model = cur_model
