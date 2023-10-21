@@ -15,6 +15,7 @@ hand-written digits, from 0-9.
 from sklearn import metrics
 from utils import preprocess_data, make_param_combinations, read_digits,predict_and_eval,train_test_dev_split, tune_hparams, train_model
 from pandas import DataFrame, set_option
+import numpy as np
 
 set_option('display.max_columns', 40)
 
@@ -44,6 +45,7 @@ iterations = 1
 # for split in splits:
 results = []
 predictions=[]
+
 for run in range(iterations):
     # Data splitting: Split data into train, test and dev as per given test and dev sizes
     X_train, X_test, X_dev, y_train, y_test, y_dev = train_test_dev_split(x_digits,y_digits,shuffle=True, **split)
@@ -52,6 +54,7 @@ for run in range(iterations):
     X_train = preprocess_data(X_train)
     X_test = preprocess_data(X_test)
     X_dev = preprocess_data(X_dev)
+    test_label=y_test
 
     for model_type in model_type_param_list_dict:
         # print(f"Current model: {model_type}")
@@ -85,10 +88,25 @@ print(f"Production model's accuracy: {results_df.iloc[0,-1]}")
 print(f"Candidate model's accuracy: {results_df.iloc[1,-1]}")
 
 #Question 3
-print("Confusion meatrix for production vs candidate results")
+print("Confusion matrix for production vs candidate results:")
 print(metrics.confusion_matrix(predictions[0],predictions[1]))
 
 #Question 4
 
+print("Confusion matrix for showing precision of production and candidate models:")
+our_cm_matrix=[[0,0],[0,0]]
+for i,label in enumerate(test_label):
+    if(label == predictions[0][i]):
+        if(label == predictions[1][i]):
+            our_cm_matrix[0][0] += 1
+        else:
+            our_cm_matrix[0][1]+=1
+    else:
+        if(label == predictions[1][i]):
+            our_cm_matrix[1][0] += 1
+        else:
+            our_cm_matrix[1][1]+=1
+our_cm_matrix  = np.asarray(our_cm_matrix)
+print(our_cm_matrix)
 
 
