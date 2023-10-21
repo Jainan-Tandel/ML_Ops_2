@@ -31,7 +31,7 @@ model_type_param_list_dict = {"svm":svm_param_list_dict,"tree":tree_param_list_d
 # dev_size_ranges = [0.1, 0.2, 0.3]
 test_size_ranges = [0.2]
 dev_size_ranges = [0.2]
-split_size_list_dict = {'test_size':test_size_ranges,'dev_size':dev_size_ranges}
+# split_size_list_dict = {'test_size':test_size_ranges,'dev_size':dev_size_ranges}
 
 # Read digits: Create a classifier: a support vector classifier
 x_digits,y_digits = read_digits()
@@ -40,9 +40,10 @@ x_digits,y_digits = read_digits()
 
 # splits = make_param_combinations(split_size_list_dict)
 split = {'test_size':0.2,'dev_size':0.2}
-iterations = 5
+iterations = 1
 # for split in splits:
 results = []
+predictions=[]
 for run in range(iterations):
     # Data splitting: Split data into train, test and dev as per given test and dev sizes
     X_train, X_test, X_dev, y_train, y_test, y_dev = train_test_dev_split(x_digits,y_digits,shuffle=True, **split)
@@ -55,12 +56,13 @@ for run in range(iterations):
     for model_type in model_type_param_list_dict:
         # print(f"Current model: {model_type}")
         best_hparams,best_model, best_accuracy =  tune_hparams(X_train,y_train,X_dev,y_dev,model_type_param_list_dict[model_type],model_type=model_type)
-        _,train_acc = predict_and_eval(best_model,X_train,y_train,c_report=False,c_matrix=False)
-        _,test_acc = predict_and_eval(best_model,X_test,y_test,c_report=False,c_matrix=False)
-        _,dev_acc = predict_and_eval(best_model,X_dev,y_dev,c_report=False,c_matrix=False)
+        train_predictions,train_acc = predict_and_eval(best_model,X_train,y_train,c_report=False,c_matrix=False)
+        test_predictions,test_acc = predict_and_eval(best_model,X_test,y_test,c_report=False,c_matrix=False)
+        dev_predictions,dev_acc = predict_and_eval(best_model,X_dev,y_dev,c_report=False,c_matrix=False)
 
         # print("Test size=%g, Dev size=%g, Train_size=%g, Train_acc=%.4f, Test_acc=%.4f, Dev_acc=%.4f" % (split['test_size'],split['dev_size'],1-split['test_size']-split['dev_size'],train_acc,test_acc,dev_acc) ,sep='')
         current_run_results = [model_type,run,train_acc,dev_acc,test_acc]
+        predictions.append(test_predictions)
         results.append(current_run_results)
     # print("Best hparams:= ",dict([(x,best_hparams[x]) for x in param_list_dict.keys()]))
 
@@ -73,5 +75,20 @@ for run in range(iterations):
 header = ["Model_type","Run","train_acc","dev_acc","test_acc"]
 results_df = DataFrame(results,columns=header)
 stats = results_df.groupby("Model_type")
-print(results_df)
-print(stats["test_acc"].agg(['mean', 'std']))
+# print(results_df)
+# print(stats["test_acc"].agg(['mean', 'std']))
+
+#Question 1
+print(f"Production model's accuracy: {results_df.iloc[0,-1]}")
+
+#Question 2
+print(f"Candidate model's accuracy: {results_df.iloc[1,-1]}")
+
+#Question 3
+print("Confusion meatrix for production vs candidate results")
+print(metrics.confusion_matrix(predictions[0],predictions[1]))
+
+#Question 4
+
+
+
