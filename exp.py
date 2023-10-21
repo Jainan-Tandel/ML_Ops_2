@@ -109,4 +109,10 @@ for i,label in enumerate(test_label):
 our_cm_matrix  = np.asarray(our_cm_matrix)
 print(our_cm_matrix)
 
+#Question 5
+f1Prod = metrics.f1_score(test_label,predictions[0],average="macro")
+f1Cand = metrics.f1_score(test_label,predictions[1],average="macro")
+print(f"Macro-average F1 metrics for production model: {f1Prod}")
+print(f"Macro-average F1 metrics for candidate model: {f1Cand}")
+
 
