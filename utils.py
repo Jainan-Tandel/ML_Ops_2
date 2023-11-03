@@ -1,6 +1,7 @@
 from sklearn import datasets, metrics, svm, tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from joblib import dump, load
 import itertools
 
 def read_digits():
@@ -74,13 +75,18 @@ def tune_hparams(X_train, y_train, X_dev, y_dev, param_list_dict,model_type="svm
     list_of_all_param_combination = make_param_combinations(param_list_dict)
     best_accuracy_so_far = -1
     best_model = None
+    best_model_path = ""
     for params in list_of_all_param_combination:
         cur_model = train_model(X_train, y_train, model_params=params, model_type=model_type)
         _, cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev,c_report=c_report,c_matrix=False)
         if cur_accuracy > best_accuracy_so_far:
             best_accuracy_so_far = cur_accuracy
             best_model = cur_model
+            best_model_path = "./models/{}_".format(model_type) +"_".join(["{}:{}".format(k,v) for k,v in params.items()]) + ".joblib"
+
+    
 
     best_accuracy = best_accuracy_so_far
     best_hparams = best_model.get_params()
-    return best_hparams, best_model, best_accuracy
+    dump(best_model,best_model_path)
+    return best_hparams, best_model, best_accuracy, best_model_path
