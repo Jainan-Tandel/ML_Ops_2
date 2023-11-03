@@ -18,11 +18,11 @@ from pandas import DataFrame, set_option
 
 set_option('display.max_columns', 40)
 
-gamma_range = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
-C_range = [0.1,1,2,5,10]
+gamma_range = [0.0001, 0.0005, 0.001, 0.01, 0.1]
+C_range = [0.1,1,10,100]
 svm_param_list_dict = {'gamma':gamma_range,'C':C_range}
 
-max_depth_range = [5,10,15,20,25]
+max_depth_range = [5,10,20,50,100]
 tree_param_list_dict = {'max_depth':max_depth_range}
 
 model_type_param_list_dict = {"svm":svm_param_list_dict,"tree":tree_param_list_dict}
@@ -38,39 +38,39 @@ x_digits,y_digits = read_digits()
 
 #Find best model for given gamma and C range
 
-# splits = make_param_combinations(split_size_list_dict)
-split = {'test_size':0.2,'dev_size':0.2}
+splits = make_param_combinations(split_size_list_dict)
+# split = {'test_size':0.2,'dev_size':0.2}
 iterations = 5
-# for split in splits:
-results = []
-for run in range(iterations):
-    # Data splitting: Split data into train, test and dev as per given test and dev sizes
-    X_train, X_test, X_dev, y_train, y_test, y_dev = train_test_dev_split(x_digits,y_digits,shuffle=True, **split)
+for split in splits:
+    results = []
+    for run in range(iterations):
+        # Data splitting: Split data into train, test and dev as per given test and dev sizes
+        X_train, X_test, X_dev, y_train, y_test, y_dev = train_test_dev_split(x_digits,y_digits,shuffle=True, **split)
 
-    # Data preprocessing
-    X_train = preprocess_data(X_train)
-    X_test = preprocess_data(X_test)
-    X_dev = preprocess_data(X_dev)
+        # Data preprocessing
+        X_train = preprocess_data(X_train)
+        X_test = preprocess_data(X_test)
+        X_dev = preprocess_data(X_dev)
 
-    for model_type in model_type_param_list_dict:
-        # print(f"Current model: {model_type}")
-        best_hparams,best_model, best_accuracy =  tune_hparams(X_train,y_train,X_dev,y_dev,model_type_param_list_dict[model_type],model_type=model_type)
-        _,train_acc = predict_and_eval(best_model,X_train,y_train,c_report=False,c_matrix=False)
-        _,test_acc = predict_and_eval(best_model,X_test,y_test,c_report=False,c_matrix=False)
-        _,dev_acc = predict_and_eval(best_model,X_dev,y_dev,c_report=False,c_matrix=False)
+        for model_type in model_type_param_list_dict:
+            # print(f"Current model: {model_type}")
+            best_hparams,best_model, best_accuracy =  tune_hparams(X_train,y_train,X_dev,y_dev,model_type_param_list_dict[model_type],model_type=model_type)
+            _,train_acc = predict_and_eval(best_model,X_train,y_train,c_report=False,c_matrix=False)
+            _,test_acc = predict_and_eval(best_model,X_test,y_test,c_report=False,c_matrix=False)
+            _,dev_acc = predict_and_eval(best_model,X_dev,y_dev,c_report=False,c_matrix=False)
 
-        # print("Test size=%g, Dev size=%g, Train_size=%g, Train_acc=%.4f, Test_acc=%.4f, Dev_acc=%.4f" % (split['test_size'],split['dev_size'],1-split['test_size']-split['dev_size'],train_acc,test_acc,dev_acc) ,sep='')
-        current_run_results = [model_type,run,train_acc,dev_acc,test_acc]
-        results.append(current_run_results)
-    # print("Best hparams:= ",dict([(x,best_hparams[x]) for x in param_list_dict.keys()]))
+            # print("Test size=%g, Dev size=%g, Train_size=%g, Train_acc=%.4f, Test_acc=%.4f, Dev_acc=%.4f" % (split['test_size'],split['dev_size'],1-split['test_size']-split['dev_size'],train_acc,test_acc,dev_acc) ,sep='')
+            current_run_results = [model_type,run,train_acc,dev_acc,test_acc,str(split),str({x:best_hparams[x] for x in model_type_param_list_dict[model_type]})]
+            results.append(current_run_results)
+        # print("Best hparams:= ",dict([(x,best_hparams[x]) for x in param_list_dict.keys()]))
 
-    # Getting model predictions on test set
-    # Predict the value of the digit on the test subset
+        # Getting model predictions on test set
+        # Predict the value of the digit on the test subset
 
-    # predicted,best_accuracy = predict_and_eval(best_model,X_test,y_test,c_report=False,c_matrix=False)
-    # print("Test Accuracy:",best_accuracy)
+        # predicted,best_accuracy = predict_and_eval(best_model,X_test,y_test,c_report=False,c_matrix=False)
+        # print("Test Accuracy:",best_accuracy)
 
-header = ["Model_type","Run","train_acc","dev_acc","test_acc"]
+header = ["Model_type","Run","train_acc","dev_acc","test_acc","split","params"]
 results_df = DataFrame(results,columns=header)
 stats = results_df.groupby("Model_type")
 print(results_df)
