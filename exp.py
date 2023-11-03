@@ -54,7 +54,7 @@ for split in splits:
 
         for model_type in model_type_param_list_dict:
             # print(f"Current model: {model_type}")
-            best_hparams,best_model, best_accuracy =  tune_hparams(X_train,y_train,X_dev,y_dev,model_type_param_list_dict[model_type],model_type=model_type)
+            best_hparams,best_model, best_accuracy,best_model_path =  tune_hparams(X_train,y_train,X_dev,y_dev,model_type_param_list_dict[model_type],model_type=model_type)
             _,train_acc = predict_and_eval(best_model,X_train,y_train,c_report=False,c_matrix=False)
             _,test_acc = predict_and_eval(best_model,X_test,y_test,c_report=False,c_matrix=False)
             _,dev_acc = predict_and_eval(best_model,X_dev,y_dev,c_report=False,c_matrix=False)
