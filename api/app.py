@@ -15,9 +15,10 @@ def sum(x,y):
 @app.route("/model", methods=['POST'])
 def pred_model():
     js = request.get_json()
-    x = js['x']
-    y = js['y']
-    return str(int(x) + int(y))
+    image = np.array(js['image']).reshape(1,-1)
+    model = joblib.load('models/svm_gamma:0.001_C:1.joblib')
+    predict = model.predict([image])
+    return str(predict)
 
 @app.route("/compare", methods=['POST'])
 def compare_images():
