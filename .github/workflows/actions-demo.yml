@@ -25,9 +25,9 @@ jobs:
       - name: Run test cases
         run: python exp.py
         shell: sh
-      - name: Docker script
-        run: bash docker/docker_run.sh
-        shell: sh
+      # - name: Docker script
+      #   run: bash docker/docker_run.sh
+      #   shell: sh
 
       
       #     pytest
