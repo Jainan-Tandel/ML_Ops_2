@@ -1,5 +1,10 @@
 from utils import make_param_combinations, train_test_dev_split,read_digits, tune_hparams, preprocess_data
 import os
+from api.app import app
+import pytest
+import joblib
+import numpy as np
+
 def test_for_hparam_cominations_count():
     # a test case to check that all possible combinations of paramers are indeed generated
     gamma_list = [0.001, 0.01, 0.1, 1]
@@ -61,3 +66,44 @@ def test_data_splitting():
     assert (len(X_train) == 30) 
     assert (len(X_test) == 10)
     assert  ((len(X_dev) == 60))
+
+def test_get_root():
+    response = app.test_client().get("/")
+    assert response.status_code == 200
+    assert response.get_data() == b"<p>Hello, World!</p>"
+
+def test_post_root():
+    suffix = "post suffix"
+    response = app.test_client().post("/", json={"suffix":suffix})
+    assert response.status_code == 200    
+    assert response.get_json()['op'] == "Hello, World POST "+suffix
+
+def get_one_of_each():
+    X, y = read_digits()
+    XL = []
+    yL = []
+    for i in range(10):
+        for j, element in enumerate(y):
+            if element == i:
+                model = joblib.load('models/svm_gamma:0.001_C:1.joblib')
+                predict = model.predict(preprocess_data(np.array([X[j]])))
+                if predict[-1] == i:
+                    index = j
+                    break
+        XL.append(X[index])
+        yL.append(y[index])
+    return preprocess_data(np.array(XL)), preprocess_data(np.array(yL).astype(float))
+
+def test_post_predict():
+    X, y = get_one_of_each()
+    print(X.shape)
+    jsondict = {}
+    for index in range(10):
+        imagedata = [str(x) for x in list(X[index])]
+        jsondict["image"]=imagedata
+        print(jsondict)
+        response = app.test_client().post("/model", json=jsondict)
+        assert response.status_code == 200    
+        assert response.get_data() == bytes(f"[{index}]", encoding='utf-8')
+
+    

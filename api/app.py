@@ -4,9 +4,13 @@ import numpy as np
 
 app = Flask(__name__)
 
-@app.route("/hello/<user>")
-def hello_world(user):
-    return f"<p>Hello {user}!</p>"
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
+
+@app.route("/", methods=["POST"])
+def hello_world_post():    
+    return {"op" : "Hello, World POST " + request.json["suffix"]}
 
 @app.route("/sum/<x>/<y>")
 def sum(x,y):
@@ -15,7 +19,8 @@ def sum(x,y):
 @app.route("/model", methods=['POST'])
 def pred_model():
     js = request.get_json()
-    image = np.array(js['image']).reshape(1,-1)
+    image = np.array(js['image'])
+    image.reshape(1,-1)
     model = joblib.load('models/svm_gamma:0.001_C:1.joblib')
     predict = model.predict([image])
     return str(predict)
@@ -36,3 +41,6 @@ def compare_images():
         return f"True"
     else:
         return f"False"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
