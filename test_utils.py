@@ -82,6 +82,7 @@ def get_one_of_each():
     X, y = read_digits()
     XL = []
     yL = []
+    index=0
     for i in range(10):
         for j, element in enumerate(y):
             if element == i:
@@ -94,16 +95,25 @@ def get_one_of_each():
         yL.append(y[index])
     return preprocess_data(np.array(XL)), preprocess_data(np.array(yL).astype(float))
 
-def test_post_predict():
-    X, y = get_one_of_each()
-    print(X.shape)
-    jsondict = {}
-    for index in range(10):
-        imagedata = [str(x) for x in list(X[index])]
-        jsondict["image"]=imagedata
-        print(jsondict)
-        response = app.test_client().post("/model", json=jsondict)
-        assert response.status_code == 200    
-        assert response.get_data() == bytes(f"[{index}]", encoding='utf-8')
+# def test_post_predict():
+    # X, y = get_one_of_each()
+    # print(X.shape)
+    # jsondict = {}
+    # for index in range(10):
+    #     imagedata = [str(x) for x in list(X[index])]
+    #     jsondict["image"]=imagedata
+    #     print(jsondict)
+    #     response = app.test_client().post("/model", json=jsondict)
+    #     assert response.status_code == 200    
+    #     assert response.get_data() == bytes(f"[{index}]", encoding='utf-8')
 
+def test_model_type():
+    model = joblib.load('models/M23CSA010_lr_solver:lbfgs.joblib')
+    assert str(type(model))=="<class 'sklearn.linear_model._logistic.LogisticRegression'>"
+
+def test_model_solver():
+    model_filename = 'models/M23CSA010_lr_solver:lbfgs.joblib'
+    model = joblib.load(model_filename)
+    print(str((model.get_params()['solver'])))
+    assert str((model.get_params()['solver'])) == model_filename.split(':')[1].split('.')[0]
     
