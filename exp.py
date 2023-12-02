@@ -75,3 +75,4 @@ results_df = DataFrame(results,columns=header)
 stats = results_df.groupby("Model_type")
 print(results_df)
 print(stats["test_acc"].agg(['mean', 'std']))
+
