@@ -1,3 +1,3 @@
-docker build -t digitsdeps:v1.1 -f docker/DependencyDockerfile . 
-docker build -t digitsfinal:v1.1 -f docker/FinalDockerfile .
-docker run -d --name Digits_models -it digitsfinal:v1.1
+docker build -t base:v2.1 -f docker/DependencyDockerfile . 
+docker build -t digits:v2.1 -f docker/FinalDockerfile .
+docker run -d --name Digits_models -it digits:v2.1
