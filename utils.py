@@ -27,7 +27,7 @@ def train_model(x,y,model_params={},model_type="svm"):
         clf = svm.SVC
     if model_type == "tree":
         clf = tree.DecisionTreeClassifier
-    if model_type == "logistic":
+    if model_type == "lr":
         clf = LogisticRegression
         
     model = clf(**model_params)
@@ -84,15 +84,15 @@ def tune_hparams(X_train, y_train, X_dev, y_dev, param_list_dict,model_type="svm
     for params in list_of_all_param_combination:
         cur_model = train_model(X_train, y_train, model_params=params, model_type=model_type)
         _, cur_accuracy = predict_and_eval(cur_model, X_dev, y_dev,c_report=c_report,c_matrix=False)
-        if model_type=='logistic':
-            cur_model_path = "./models/{}_".format(model_type) +"_".join(["{}:{}".format(k,v) for k,v in params.items()]) + ".joblib"
+        if model_type=='lr':
+            cur_model_path = "./models/M23CSA010_{}_".format(model_type) +"_".join(["{}:{}".format(k,v) for k,v in params.items()]) + ".joblib"
             dump(cur_model,cur_model_path)
             print(f"Accuracy of {params['solver']} = {cur_accuracy}")
 
         if cur_accuracy > best_accuracy_so_far:
             best_accuracy_so_far = cur_accuracy
             best_model = cur_model
-            best_model_path = "./models/{}_".format(model_type) +"_".join(["{}:{}".format(k,v) for k,v in params.items()]) + ".joblib"
+            best_model_path = "./models/M23CSA010_{}_".format(model_type) +"_".join(["{}:{}".format(k,v) for k,v in params.items()]) + ".joblib"
 
     
 

@@ -28,8 +28,8 @@ tree_param_list_dict = {'max_depth':max_depth_range}
 logistic_solvers = ['lbfgs', 'liblinear', 'newton-cg', 'newton-cholesky', 'sag', 'saga']
 logistic_param_list_dict= {'solver': logistic_solvers}
 
-# model_type_param_list_dict = {"svm":svm_param_list_dict,"tree":tree_param_list_dict, "logistic":logistic_param_list_dict}
-model_type_param_list_dict = {"logistic":logistic_param_list_dict}
+# model_type_param_list_dict = {"svm":svm_param_list_dict,"tree":tree_param_list_dict, "lr":logistic_param_list_dict}
+model_type_param_list_dict = {"lr":logistic_param_list_dict}
 
 # test_size_ranges = [0.1, 0.2, 0.3]
 # dev_size_ranges = [0.1, 0.2, 0.3]
