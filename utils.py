@@ -2,6 +2,7 @@ from sklearn import datasets, metrics, svm, tree
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from joblib import dump, load
+from sklearn.preprocessing import normalize
 import itertools
 
 def read_digits():
@@ -17,6 +18,7 @@ def split_data(x,y, test_size, shuffle = False, random_state = 42):
 def preprocess_data(data):
     n_samples = len(data)
     data = data.reshape((n_samples, -1))
+    data = normalize(data)
     return data
     
 def train_model(x,y,model_params={},model_type="svm"):
