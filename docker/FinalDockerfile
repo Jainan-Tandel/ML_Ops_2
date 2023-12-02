@@ -1,0 +1,7 @@
+# FROM ubuntu:23.10
+FROM digitsDeps:v1.1
+COPY . /digits/
+WORKDIR /digits
+RUN python3 exp.py
+ENV FLASK_APP=api/app
+CMD ["flask", "run"]
